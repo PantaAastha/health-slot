@@ -224,7 +224,6 @@ async function confirmBooking() {
     time: selectedTime.value,
     notify: notify.value,
   });
-
   showModal.value = false;
   alert(
     `Appointment booked!${
