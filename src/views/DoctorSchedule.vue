@@ -80,7 +80,7 @@ const toasts = ref([]);
 
 onMounted(async () => {
   if (!store.state.doctors.length) {
-    await store.dispatch("loadDoctors");
+  await store.dispatch("loadDoctors");
   }
 
   const doctorId = Number(route.params.id);
