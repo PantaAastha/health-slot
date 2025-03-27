@@ -5,7 +5,7 @@ export default createStore({
   state: {
     doctors: [],
     bookings: JSON.parse(localStorage.getItem("bookings") || "[]"),
-    user: JSON.parse(localStorage.getItem("user") || "{}"), // Store user info
+    user: JSON.parse(localStorage.getItem("user") || "{}"),
   },
   mutations: {
     setDoctors(state, doctors) {
@@ -13,6 +13,10 @@ export default createStore({
     },
     addBooking(state, booking) {
       state.bookings.push(booking);
+      localStorage.setItem("bookings", JSON.stringify(state.bookings));
+    },
+    setBookings(state, bookings) {
+      state.bookings = bookings;
       localStorage.setItem("bookings", JSON.stringify(state.bookings));
     },
     setUser(state, user) {
@@ -25,11 +29,12 @@ export default createStore({
       const doctors = await fetchDoctors();
       commit("setDoctors", doctors);
     },
-    bookSlot({ commit }, { doctorId, day, time, notify }) {
+    bookSlot({ commit }, { doctorId, date, day, time, notify }) {
       const booking = {
         doctorId,
-        day,
-        time,
+        date, // Store the specific date (e.g., "2025-03-31")
+        day, // Store the day name (e.g., "Monday")
+        time, // Store the time (e.g., "9:00 AM")
         notify,
         bookedAt: new Date().toISOString(),
       };
