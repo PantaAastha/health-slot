@@ -43,7 +43,7 @@
       </div>
       <button class="book-btn" @click="$emit('book')">
         <i class="fas fa-plus"></i>
-        Book Appointment
+        Book Now
       </button>
     </div>
   </header>
@@ -79,9 +79,13 @@ const formattedDateRange = computed(() => {
   const shortOptions = { month: "short", day: "numeric" };
   const yearOptions = { year: "numeric" };
 
+  // Get the last day of the current view
+  const viewEnd = new Date(props.endDate);
+  viewEnd.setDate(viewEnd.getDate() - 1); // Subtract one day as endDate is exclusive
+
   const start = props.startDate.toLocaleDateString("en-US", shortOptions);
-  const end = props.endDate.toLocaleDateString("en-US", shortOptions);
-  const year = props.endDate.toLocaleDateString("en-US", yearOptions);
+  const end = viewEnd.toLocaleDateString("en-US", shortOptions);
+  const year = viewEnd.toLocaleDateString("en-US", yearOptions);
 
   return props.currentView === "timeGridWeek"
     ? `${start} - ${end}, ${year}`
@@ -162,36 +166,6 @@ const formattedDateRange = computed(() => {
 .view-controls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-btn {
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0.375rem;
-  border-radius: 0.375rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  transition: all 0.2s;
-  font-size: 1rem;
-}
-
-.nav-btn:hover {
-  background: #f3f4f6;
-  color: #111827;
-}
-
-.nav-btn i {
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .view-toggle {
@@ -199,19 +173,59 @@ const formattedDateRange = computed(() => {
   background: #f3f4f6;
   border-radius: 0.375rem;
   padding: 0.125rem;
-  margin: 0 0.25rem;
+}
+
+.nav-btn {
+  background: #f3f4f6;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.375rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  height: 100%;
+}
+
+.nav-btn:first-child {
+  border-top-left-radius: 0.375rem;
+  border-bottom-left-radius: 0.375rem;
+  border-right: 1px solid #e5e7eb;
+  margin-right: -1px;
+}
+
+.nav-btn:last-child {
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+  border-left: 1px solid #e5e7eb;
+  margin-left: -1px;
+}
+
+.nav-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.nav-btn i {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .toggle-btn {
   background: none;
   border: none;
   padding: 0.375rem 0.75rem;
-  border-radius: 0.25rem;
   cursor: pointer;
   color: #6b7280;
   font-weight: 500;
   font-size: 0.875rem;
   transition: all 0.2s;
+  border-radius: 0.25rem;
 }
 
 .toggle-btn.active {
