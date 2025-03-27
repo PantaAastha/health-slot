@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header>
-      <h1>Shiftcare Scheduler</h1>
+      <h1>Health Slot</h1>
     </header>
     <main>
       <router-view />

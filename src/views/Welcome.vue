@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <h1>Welcome to Shiftcare</h1>
-    <p>We’re here to help you book your appointment. Let’s get started!</p>
+    <h1>Welcome to Health Slot</h1>
+    <p>We're here to help you book your appointment. Let's get started!</p>
     <form @submit.prevent="submitForm" class="welcome-form">
       <div class="form-group">
         <label for="name">Your Name</label>
@@ -23,25 +23,43 @@
           required
         />
       </div>
-      <button type="submit" class="continue-btn">Continue</button>
+      <button type="submit" class="continue-btn" :disabled="isSubmitting">
+        {{ isSubmitting ? "Please wait..." : "Continue" }}
+      </button>
     </form>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
-const store = useStore();
 const router = useRouter();
+const store = useStore();
 
 const name = ref("");
 const email = ref("");
+const isSubmitting = ref(false);
 
-function submitForm() {
-  store.dispatch("saveUser", { name: name.value, email: email.value });
-  router.push("/doctors");
+async function submitForm() {
+  if (isSubmitting.value) return;
+
+  try {
+    isSubmitting.value = true;
+    // Save user info to store using the correct action name
+    await store.dispatch("saveUser", {
+      name: name.value,
+      email: email.value,
+    });
+
+    // Redirect to home view
+    router.push("/doctors");
+  } catch (error) {
+    console.error("Error submitting form:", error);
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 </script>
 
