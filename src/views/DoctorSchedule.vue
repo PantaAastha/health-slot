@@ -12,7 +12,7 @@
         <h3>{{ day.day }}</h3>
         <div class="time-slots">
           <TimeSlot
-            v-for="slot in availableTimes(day.hours, day.day)"
+            v-for="slot in availableTimes(day)"
             :key="slot.time"
             :time="slot.time"
             :disabled="!slot.isAvailable"
@@ -54,32 +54,34 @@ const route = useRoute();
 const router = useRouter();
 
 const doctor = ref(null);
-const loading = ref(true); // Add loading state
+const loading = ref(true);
 const showModal = ref(false);
 const selectedDay = ref("");
 const selectedTime = ref("");
 const notify = ref(false);
 
 onMounted(async () => {
-  console.log("Route params id:", route.params.id); // Debug: Check the ID from the route
-  console.log("Fetching doctors...");
-  await store.dispatch("loadDoctors");
-  console.log("Doctors in store:", store.state.doctors); // Debug: Check the doctors array
+  if (!store.state.doctors.length) {
+    await store.dispatch("loadDoctors");
+  }
 
   const doctorId = Number(route.params.id);
   doctor.value = store.getters.getDoctorById(doctorId);
-  console.log("Found doctor:", doctor.value); // Debug: Check the found doctor
+
+  if (!doctor.value) {
+    router.push("/doctors");
+  }
 
   loading.value = false;
 });
 
-const availableTimes = (hours, day) => {
-  const booked = store.getters.bookedSlots.filter(
-    (b) => b.doctorId === doctor.value?.id && b.day === day
+const availableTimes = (day) => {
+  const bookedSlots = store.getters.bookedSlots.filter(
+    (b) => b.doctorId === doctor.value?.id && b.day === day.day
   );
-  return hours.map((time) => ({
+  return day.hours.map((time) => ({
     time,
-    isAvailable: !booked.some((b) => b.time === time),
+    isAvailable: !bookedSlots.some((b) => b.time === time),
   }));
 };
 
@@ -100,7 +102,7 @@ function confirmBooking() {
   alert(
     `Appointment booked!${
       notify.value
-        ? " We'll notify you 30 minutes before your appointment."
+        ? " We’ll notify you 30 minutes before your appointment."
         : ""
     }`
   );
@@ -109,6 +111,11 @@ function confirmBooking() {
 </script>
 
 <style scoped>
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
 .day-section {
   margin: 1rem 0;
 }
