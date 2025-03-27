@@ -62,12 +62,18 @@ function transformDoctors(rawData) {
     const { name, timezone, day_of_week, available_at, available_until } =
       entry;
     if (!acc[name]) {
-      acc[name] = { name, timezone, availability: [] };
+      acc[name] = { name, timezone, availability: {} };
     }
-    acc[name].availability.push({
-      day: day_of_week,
-      hours: generateTimeSlots(available_at, available_until),
-    });
+
+    // Initialize the day if it doesn't exist
+    if (!acc[name].availability[day_of_week]) {
+      acc[name].availability[day_of_week] = [];
+    }
+
+    // Add the time slots for this day
+    acc[name].availability[day_of_week].push(
+      ...generateTimeSlots(available_at, available_until)
+    );
     return acc;
   }, {});
 
@@ -86,6 +92,9 @@ function transformDoctors(rawData) {
     name: doctor.name,
     speciality: specialties[index % specialties.length], // Assign a specialty
     timezone: doctor.timezone,
-    availability: doctor.availability,
+    availability: Object.entries(doctor.availability).map(([day, hours]) => ({
+      day,
+      hours: [...new Set(hours)].sort(), // Remove duplicates and sort
+    })),
   }));
 }

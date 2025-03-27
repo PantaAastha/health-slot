@@ -80,10 +80,6 @@ function generateCalendarEvents(start, end) {
         // Check if the slot is in the past
         const isPast = slotDate < currentDate;
 
-        // Check if the slot is today and the time has passed
-        const isToday = formatDate(slotDate) === formatDate(currentDate);
-        const isTimePassed = isToday && isPast;
-
         // Check if the slot is too close (within 15 minutes)
         let isTooClose = false;
         if (!isPast) {
@@ -109,11 +105,6 @@ function generateCalendarEvents(start, end) {
         } else if (isBooked) {
           status = "booked";
           label = "Booked";
-        }
-
-        // Skip slots for today if the time has passed
-        if (isTimePassed) {
-          return;
         }
 
         events.push({
@@ -308,10 +299,22 @@ watch(
 :deep(.past-slot .fc-event-main) {
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+:deep(.past-slot .slot-time) {
+  color: #9ca3af;
 }
 
 :deep(.past-slot .slot-status) {
   color: #6b7280;
+}
+
+:deep(.past-slot:hover .fc-event-main) {
+  transform: none;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
 }
 
 :deep(.too-close-slot .fc-event-main) {
