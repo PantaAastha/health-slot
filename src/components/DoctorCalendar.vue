@@ -168,6 +168,17 @@ const calendarOptions = computed(() => {
       start: "2025-03-27",
       end: "2025-04-28",
     },
+    nowIndicator: true,
+    eventContent: (arg) => {
+      return {
+        html: `
+          <div class="slot-content">
+            <div class="slot-time">${arg.event.extendedProps.time}</div>
+            <div class="slot-status">${arg.event.title}</div>
+          </div>
+        `,
+      };
+    },
     ...props.options,
   };
 });
@@ -246,52 +257,74 @@ watch(
   padding: 4px 8px;
   border-radius: 4px;
   min-height: 40px;
+}
+
+:deep(.slot-content) {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 2px;
 }
 
-:deep(.fc-event-time) {
-  font-weight: 500;
+:deep(.slot-time) {
+  font-weight: 600;
   font-size: 0.875rem;
-  margin-right: 8px;
+  color: #1f2937;
 }
 
-:deep(.fc-event-title) {
-  display: none;
+:deep(.slot-status) {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
-:deep(.available-slot .fc-event-main) {
-  background: #ecfdf5;
-  border: 1px solid #6ee7b7;
-  color: #065f46;
+:deep(.available-slot) {
   cursor: pointer;
 }
 
+:deep(.available-slot .fc-event-main) {
+  background: #f0fdf4;
+  border: 1px solid #dcfce7;
+}
+
+:deep(.available-slot .slot-status) {
+  color: #059669;
+}
+
 :deep(.available-slot:hover .fc-event-main) {
-  background: #d1fae5;
+  background: #dcfce7;
   transform: translateY(-1px);
   transition: all 0.2s;
 }
 
 :deep(.booked-slot .fc-event-main) {
   background: #fef2f2;
-  border: 1px solid #fca5a5;
-  color: #991b1b;
-  cursor: not-allowed;
+  border: 1px solid #fee2e2;
+}
+
+:deep(.booked-slot .slot-status) {
+  color: #dc2626;
 }
 
 :deep(.past-slot .fc-event-main) {
   background: #f3f4f6;
-  border: 1px solid #d1d5db;
+  border: 1px solid #e5e7eb;
+}
+
+:deep(.past-slot .slot-status) {
   color: #6b7280;
-  cursor: not-allowed;
 }
 
 :deep(.too-close-slot .fc-event-main) {
   background: #fffbeb;
-  border: 1px solid #fcd34d;
-  color: #92400e;
-  cursor: not-allowed;
+  border: 1px solid #fef3c7;
+}
+
+:deep(.too-close-slot .slot-status) {
+  color: #d97706;
+}
+
+:deep(.fc-timegrid-col.fc-day-today) {
+  background-color: #fffbeb !important;
 }
 
 :deep(.fc-timegrid-col) {
