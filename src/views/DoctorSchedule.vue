@@ -2,23 +2,12 @@
   <div class="container">
     <h1>{{ doctor?.name }}'s Schedule</h1>
     <p>{{ doctor?.speciality }} | Timezone: {{ doctor?.timezone }}</p>
+
     <div v-if="loading">Loading...</div>
     <div v-else-if="doctor">
-      <div
-        v-for="day in doctor.availability"
-        :key="day.day"
-        class="day-section"
-      >
-        <h3>{{ day.day }}</h3>
-        <div class="time-slots">
-          <TimeSlot
-            v-for="slot in availableTimes(day)"
-            :key="slot.time"
-            :time="slot.time"
-            :disabled="!slot.isAvailable"
-            @book="openBookingModal(day.day, slot.time)"
-          />
-        </div>
+      <!-- Calendar View -->
+      <div class="calendar-view">
+        <FullCalendar :options="calendarOptions" ref="calendar" />
       </div>
     </div>
     <p v-else>Doctor not found</p>
@@ -44,10 +33,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import TimeSlot from "../components/TimeSlot.vue";
+import FullCalendar from "@fullcalendar/vue3";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
 
 const store = useStore();
 const route = useRoute();
@@ -59,6 +51,7 @@ const showModal = ref(false);
 const selectedDay = ref("");
 const selectedTime = ref("");
 const notify = ref(false);
+const calendar = ref(null);
 
 onMounted(async () => {
   if (!store.state.doctors.length) {
@@ -75,15 +68,100 @@ onMounted(async () => {
   loading.value = false;
 });
 
-const availableTimes = (day) => {
+const calendarOptions = computed(() => {
+  const events = generateCalendarEvents();
+  return {
+    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    initialView: window.innerWidth < 768 ? "timeGridDay" : "timeGridWeek",
+    headerToolbar: {
+      left: "prev,next",
+      center: "title",
+      right: window.innerWidth < 768 ? "" : "timeGridWeek,timeGridDay",
+    },
+    events: events,
+    eventClick: handleEventClick,
+    slotMinTime: "06:00:00",
+    slotMaxTime: "18:00:00",
+    slotDuration: "00:30:00",
+    allDaySlot: false,
+    height: "auto",
+  };
+});
+
+watch(
+  () => store.getters.bookedSlots,
+  () => {
+    if (calendar.value) {
+      const calendarApi = calendar.value.getApi();
+      calendarApi.refetchEvents();
+    }
+  },
+  { deep: true }
+);
+
+function generateCalendarEvents() {
+  if (!doctor.value) return [];
+
+  const events = [];
   const bookedSlots = store.getters.bookedSlots.filter(
-    (b) => b.doctorId === doctor.value?.id && b.day === day.day
+    (b) => b.doctorId === doctor.value.id
   );
-  return day.hours.map((time) => ({
-    time,
-    isAvailable: !bookedSlots.some((b) => b.time === time),
-  }));
-};
+
+  doctor.value.availability.forEach((day) => {
+    day.hours.forEach((time) => {
+      const isBooked = bookedSlots.some(
+        (b) => b.day === day.day && b.time === time
+      );
+      const eventDate = getEventDate(day.day, time);
+      events.push({
+        title: isBooked ? "Booked" : "Available",
+        start: eventDate,
+        end: new Date(eventDate.getTime() + 30 * 60 * 1000),
+        extendedProps: { day: day.day, time: time, isBooked },
+        backgroundColor: isBooked ? "#ef4444" : "#34d399",
+        borderColor: isBooked ? "#ef4444" : "#34d399",
+        textColor: "white",
+        classNames: [isBooked ? "booked-slot" : "available-slot"],
+      });
+    });
+  });
+
+  return events;
+}
+
+function getEventDate(day, time) {
+  const daysOfWeek = {
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+    Sunday: 0,
+  };
+
+  const [hours, minutes, period] = time.match(/(\d+):(\d+) (AM|PM)/).slice(1);
+  let hour = parseInt(hours, 10);
+  if (period === "PM" && hour !== 12) hour += 12;
+  if (period === "AM" && hour === 12) hour = 0;
+
+  const today = new Date();
+  const currentDay = today.getDay();
+  const targetDay = daysOfWeek[day];
+  const daysDiff = (targetDay - currentDay + 7) % 7 || 7;
+
+  const eventDate = new Date(today);
+  eventDate.setDate(today.getDate() + daysDiff);
+  eventDate.setHours(hour, parseInt(minutes, 10), 0, 0);
+  return eventDate;
+}
+
+function handleEventClick(info) {
+  const { day, time, isBooked } = info.event.extendedProps;
+  if (!isBooked) {
+    openBookingModal(day, time);
+  }
+}
 
 function openBookingModal(day, time) {
   selectedDay.value = day;
@@ -106,23 +184,14 @@ function confirmBooking() {
         : ""
     }`
   );
-  router.push("/doctors");
 }
 </script>
 
 <style scoped>
 .container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-}
-.day-section {
-  margin: 1rem 0;
-}
-.time-slots {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
 }
 .modal-overlay {
   position: fixed;
@@ -134,6 +203,7 @@ function confirmBooking() {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 .modal {
   background: white;
@@ -141,6 +211,7 @@ function confirmBooking() {
   border-radius: 8px;
   text-align: center;
   max-width: 400px;
+  z-index: 1001;
 }
 .modal-actions {
   margin-top: 1rem;
@@ -161,5 +232,25 @@ function confirmBooking() {
   border-radius: 6px;
   padding: 0.5rem 1rem;
   border: none;
+}
+:deep(.fc) {
+  font-family: "Roboto", sans-serif;
+  z-index: 1;
+}
+:deep(.fc .fc-col-header-cell) {
+  background: #00a3e0;
+  color: white;
+}
+:deep(.fc .fc-daygrid-day-number) {
+  color: #333;
+}
+:deep(.fc .fc-timegrid-slot-label) {
+  color: #6b7280;
+}
+:deep(.fc .fc-event) {
+  cursor: pointer;
+}
+:deep(.booked-slot) {
+  cursor: not-allowed;
 }
 </style>
