@@ -130,10 +130,16 @@ function handleEventClick(info) {
 }
 
 const calendarOptions = computed(() => {
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+  const oneMonthLater = new Date(today);
+  oneMonthLater.setMonth(today.getMonth() + 1);
+  const oneMonthLaterStr = oneMonthLater.toISOString().split("T")[0];
+
   return {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: props.initialView,
-    initialDate: "2025-03-24",
+    initialDate: todayStr,
     headerToolbar: {
       left: "",
       center: "title",
@@ -156,8 +162,8 @@ const calendarOptions = computed(() => {
     allDaySlot: false,
     height: "auto",
     validRange: {
-      start: "2025-03-27",
-      end: "2025-04-28",
+      start: todayStr,
+      end: oneMonthLaterStr,
     },
     nowIndicator: true,
     eventContent: (arg) => {
