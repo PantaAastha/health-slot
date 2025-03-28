@@ -5,7 +5,6 @@ export async function fetchDoctors() {
     );
     if (!response.ok) throw new Error("Failed to fetch doctors");
     const rawData = await response.json();
-
     // Transform the raw data into the desired format
     return transformDoctors(rawData);
   } catch (error) {
@@ -15,7 +14,7 @@ export async function fetchDoctors() {
 }
 
 // Helper function to generate 30-minute time slots between start and end times
-function generateTimeSlots(startTime, endTime) {
+export function generateTimeSlots(startTime, endTime) {
   const slots = [];
   let currentTime = parseTime(startTime);
   const end = parseTime(endTime);
@@ -55,8 +54,19 @@ function formatTime(date) {
   return `${hours}:${minutes} ${period}`;
 }
 
+function sortTimes(times) {
+  return times.sort((a, b) => {
+    // Convert times to Date objects for comparison
+    const timeA = new Date(`2000-01-01 ${a}`);
+    const timeB = new Date(`2000-01-01 ${b}`);
+
+    // Compare the times
+    return timeA - timeB;
+  });
+}
+
 // Transform raw API data into the desired doctor format
-function transformDoctors(rawData) {
+export function transformDoctors(rawData) {
   // Group by doctor name
   const groupedByDoctor = rawData.reduce((acc, entry) => {
     const { name, timezone, day_of_week, available_at, available_until } =
@@ -94,7 +104,7 @@ function transformDoctors(rawData) {
     timezone: doctor.timezone,
     availability: Object.entries(doctor.availability).map(([day, hours]) => ({
       day,
-      hours: [...new Set(hours)].sort(), // Remove duplicates and sort
+      hours: sortTimes([...new Set(hours)]), // Remove duplicates and sort
     })),
   }));
 }

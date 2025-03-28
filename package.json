@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.15",
@@ -23,9 +25,12 @@
     "@vue/cli-plugin-eslint": "~4.5.11",
     "@vue/cli-service": "~4.5.11",
     "@vue/compiler-sfc": "^3.0.0",
+    "@vue/test-utils": "^2.4.6",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0"
+    "eslint-plugin-vue": "^7.0.0",
+    "jsdom": "^26.0.0",
+    "vitest": "^3.0.9"
   },
   "eslintConfig": {
     "root": true,
