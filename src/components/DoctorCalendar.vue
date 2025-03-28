@@ -139,17 +139,19 @@ function generateCalendarEvents(start, end) {
           tooltip = "This slot is booked by another patient";
         } else if (userBookingWithOtherDoctor) {
           // This slot conflicts with the user's booking with another doctor
-          status = "booked-by-other";
-          label = "Time Slot Booked";
+          status = "schedule-conflict";
+          label = "Schedule Conflict";
           const otherDoctor = store.getters.getDoctorById(
             userBookingWithOtherDoctor.doctorId
           );
           tooltip = `You have an appointment with Dr. ${otherDoctor.name} at this time. 
                      To book this slot, please cancel your appointment with Dr. ${otherDoctor.name} first.`;
         } else if (isTooClose) {
-          // Only apply "Too Close" if the slot is not booked or conflicting
-          status = "too-close";
-          label = "Too Close";
+          // Only apply "Too Late to Book" if the slot is not booked or conflicting
+          status = "too-late-to-book";
+          label = "Too Late to Book";
+          tooltip =
+            "This slot is within 15 minutes of the current time and can no longer be booked.";
         }
 
         events.push({
@@ -382,12 +384,12 @@ watch(
   border: 1px solid #e5e7eb;
 }
 
-:deep(.too-close-slot .fc-event-main) {
+:deep(.too-late-to-book-slot .fc-event-main) {
   background: #fffbeb;
   border: 1px solid #fef3c7;
 }
 
-:deep(.too-close-slot .slot-status) {
+:deep(.too-late-to-book-slot .slot-status) {
   color: #d97706;
 }
 
@@ -445,17 +447,17 @@ watch(
   transition: all 0.2s;
 }
 
-:deep(.booked-by-other-slot .fc-event-main) {
+:deep(.schedule-conflict-slot .fc-event-main) {
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
   cursor: not-allowed;
 }
 
-:deep(.booked-by-other-slot .slot-status) {
+:deep(.schedule-conflict-slot .slot-status) {
   color: #6b7280;
 }
 
-:deep(.booked-by-other-slot:hover .fc-event-main) {
+:deep(.schedule-conflict-slot:hover .fc-event-main) {
   transform: none;
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
