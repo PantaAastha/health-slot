@@ -196,7 +196,6 @@ function toastIcon(type) {
 
 .content {
   flex: 1;
-  padding: 1.5rem;
 }
 
 .loading {

@@ -1,8 +1,15 @@
 <template>
   <router-link :to="`/doctor/${doctor.id}`" class="doctor-card">
-    <h2>{{ doctor.name }}</h2>
-    <p>{{ doctor.speciality }}</p>
-    <button class="view-schedule">View Schedule</button>
+    <div class="doctor-avatar">
+      <i class="fas fa-user-md"></i>
+    </div>
+    <div class="doctor-info">
+      <h2><i class="fas fa-stethoscope"></i> {{ doctor.name }}</h2>
+      <p><i class="fas fa-user-tag"></i> {{ doctor.speciality }}</p>
+      <button class="view-schedule">
+        <i class="fas fa-calendar-alt"></i> View Schedule
+      </button>
+    </div>
   </router-link>
 </template>
 
@@ -20,38 +27,82 @@ defineProps({
 <style scoped>
 .doctor-card {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
-  margin: 1rem 0;
   text-decoration: none;
   color: #333;
-  display: block;
-  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
-.doctor-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+.doctor-avatar {
+  width: 80px;
+  height: 80px;
+  background: #e6f7ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.doctor-avatar i {
+  font-size: 2.5rem;
+  color: #00a3e0;
+}
+
+.doctor-info {
+  text-align: center;
+  width: 100%;
+}
+
 h2 {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.75rem 0;
   font-size: 1.25rem;
-  color: #333;
+  color: #1a365d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
-p {
-  margin: 0 0 1rem 0;
-  color: #6b7280;
+
+h2 i {
+  color: #00a3e0;
   font-size: 1rem;
 }
+
+p {
+  margin: 0 0 1.25rem 0;
+  color: #4a5568;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+p i {
+  color: #718096;
+}
+
 .view-schedule {
   background: #00a3e0;
   color: white;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
   border: none;
   font-size: 1rem;
   cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease;
 }
+
 .view-schedule:hover {
   background: #008dc2;
 }
