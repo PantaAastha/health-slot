@@ -82,11 +82,11 @@ function generateCalendarEvents(start, end) {
         // Check if the slot is in the past
         const isPast = slotDate < currentDate;
 
-        // Check if the slot is too close (within 1 minute)
+        // Check if the slot is too close (within 15 minutes)
         let isTooClose = false;
         if (!isPast) {
           const timeDiff = (slotDate - currentDate) / (1000 * 60); // Difference in minutes
-          isTooClose = timeDiff < 1;
+          isTooClose = timeDiff < 15;
         }
 
         // Check if this slot is booked by anyone with the current doctor
@@ -127,9 +127,6 @@ function generateCalendarEvents(start, end) {
         if (isPast) {
           status = "past";
           label = "Past";
-        } else if (isTooClose) {
-          status = "too-close";
-          label = "Too Close";
         } else if (userBookingWithThisDoctor) {
           // This is the user's booking with this doctor
           status = "booked-by-user";
@@ -149,6 +146,10 @@ function generateCalendarEvents(start, end) {
           );
           tooltip = `You have an appointment with Dr. ${otherDoctor.name} at this time. 
                      To book this slot, please cancel your appointment with Dr. ${otherDoctor.name} first.`;
+        } else if (isTooClose) {
+          // Only apply "Too Close" if the slot is not booked or conflicting
+          status = "too-close";
+          label = "Too Close";
         }
 
         events.push({
