@@ -67,14 +67,13 @@ async function submitForm() {
 .container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 .welcome-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 .form-group {
   display: flex;

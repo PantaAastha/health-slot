@@ -108,6 +108,8 @@ const formattedDateRange = computed(() => {
   background: white;
   border-bottom: 1px solid #e5e7eb;
   height: 64px;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .left-section {
@@ -281,5 +283,82 @@ const formattedDateRange = computed(() => {
 
 .book-btn i {
   font-size: 0.75rem;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .doctor-header {
+    padding: 0.5rem 1rem;
+    height: auto;
+  }
+
+  .left-section {
+    flex: 0 0 100%;
+    order: 1;
+  }
+
+  .center-section {
+    flex: 1;
+    order: 2;
+  }
+
+  .right-section {
+    flex: auto;
+    order: 2;
+    width: auto;
+  }
+
+  .doctor-info .details h1 {
+    font-size: 1rem;
+  }
+
+  .doctor-info .subtitle {
+    font-size: 0.75rem;
+  }
+
+  .view-controls {
+    margin-left: auto;
+  }
+
+  .book-btn {
+    display: none;
+  }
+
+  .view-toggle {
+    display: none;
+  }
+
+  .date-range {
+    font-size: 0.875rem;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .doctor-header {
+    padding: 0.75rem;
+  }
+
+  .doctor-info .details h1 {
+    font-size: 1rem;
+  }
+
+  .book-btn {
+    padding: 0.5rem;
+  }
+
+  .book-btn i {
+    margin-right: 0;
+  }
+
+  .book-btn span {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .view-toggle button[data-view="timeGridWeek"] {
+    display: none;
+  }
 }
 </style> 

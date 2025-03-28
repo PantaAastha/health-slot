@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import DoctorHeader from "@/components/DoctorHeader.vue";
@@ -74,14 +74,16 @@ const showModal = ref(false);
 const selectedDay = ref("");
 const selectedTime = ref("");
 const selectedSlotDate = ref(null);
-const currentView = ref("timeGridWeek");
+const currentView = ref(
+  window.innerWidth <= 768 ? "timeGridDay" : "timeGridWeek"
+);
 const startDate = ref(new Date());
 const endDate = ref(new Date());
 const toasts = ref([]);
 
-onMounted(async () => {
+onMounted(() => {
   if (!store.state.doctors.length) {
-    await store.dispatch("loadDoctors");
+    store.dispatch("loadDoctors");
   }
 
   const doctorId = Number(route.params.id);
@@ -92,7 +94,26 @@ onMounted(async () => {
   }
 
   loading.value = false;
+
+  // Add resize event listener
+  window.addEventListener("resize", handleResize);
 });
+
+onUnmounted(() => {
+  window.removeEventListener("resize", handleResize);
+});
+
+function handleResize() {
+  const newView = window.innerWidth <= 768 ? "timeGridDay" : "timeGridWeek";
+  if (currentView.value !== newView) {
+    currentView.value = newView;
+    if (calendar.value) {
+      const calendarApi = calendar.value.getApi();
+      calendarApi.changeView(newView);
+      updateDateRange(calendarApi.view);
+    }
+  }
+}
 
 function handleSlotSelected({ day, time, slotDate }) {
   if (!doctor.value) return;
