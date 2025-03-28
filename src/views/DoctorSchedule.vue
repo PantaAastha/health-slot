@@ -9,6 +9,7 @@
       @next="handleNext"
       @view-change="handleViewChange"
       @book="showModal = true"
+      @back="router.push('/doctors')"
     />
 
     <div class="content">
@@ -80,7 +81,7 @@ const toasts = ref([]);
 
 onMounted(async () => {
   if (!store.state.doctors.length) {
-  await store.dispatch("loadDoctors");
+    await store.dispatch("loadDoctors");
   }
 
   const doctorId = Number(route.params.id);

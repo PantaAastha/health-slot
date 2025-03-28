@@ -1,6 +1,9 @@
 <template>
   <header class="doctor-header">
     <div class="left-section">
+      <button class="back-btn" @click="$emit('back')">
+        <i class="fas fa-arrow-left"></i>
+      </button>
       <div class="doctor-info">
         <div class="avatar">
           {{ doctor?.name?.[0] || "D" }}
@@ -71,7 +74,7 @@ const props = defineProps({
   },
 });
 
-defineEmits(["prev", "next", "view-change", "book"]);
+defineEmits(["prev", "next", "view-change", "book", "back"]);
 
 const formattedDateRange = computed(() => {
   if (!props.startDate || !props.endDate) return "";
@@ -109,6 +112,29 @@ const formattedDateRange = computed(() => {
 
 .left-section {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  color: #111827;
+}
+
+.back-btn i {
+  font-size: 1.25rem;
 }
 
 .doctor-info {
