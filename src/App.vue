@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <header>
-      <h1>Health Slot</h1>
+      <div class="header-content">
+        <img src="@/assets/logo.png" alt="Health Slot Logo" class="logo" />
+      </div>
     </header>
     <main>
       <router-view />
@@ -23,17 +25,34 @@
   background: #f9fafb;
   min-height: 100vh;
 }
+
 header {
-  background: #00a3e0;
-  color: white;
-  padding: 1rem;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 0.5rem 2rem;
 }
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
 h1 {
   margin: 0;
   font-size: 1.5rem;
+  color: #00a3e0;
+  font-weight: 500;
 }
+
 main {
   padding: 1rem;
 }
