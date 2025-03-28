@@ -82,7 +82,7 @@ function generateCalendarEvents(start, end) {
         // Check if the slot is in the past
         const isPast = slotDate < currentDate;
 
-        // Check if the slot is too close (within 15 minutes)
+        // Check if the slot is too close (within 1 minute)
         let isTooClose = false;
         if (!isPast) {
           const timeDiff = (slotDate - currentDate) / (1000 * 60); // Difference in minutes
@@ -96,17 +96,28 @@ function generateCalendarEvents(start, end) {
             b.date === slotDateStr &&
             b.day === dayName &&
             b.time === time &&
-            b.doctorId === props.doctor.id && // Only consider bookings with this doctor
-            b.userId !== currentUserId // Only consider bookings by other users
+            b.doctorId === props.doctor.id &&
+            b.userId !== currentUserId
         );
 
-        // Check if user has a booking at this time with any doctor
-        const userBookingAtThisTime = props.bookedSlots.find(
+        // Check if the current user has a booking with this doctor at this time
+        const userBookingWithThisDoctor = props.bookedSlots.find(
           (b) =>
             b.userId === currentUserId &&
             b.date === slotDateStr &&
             b.day === dayName &&
-            b.time === time
+            b.time === time &&
+            b.doctorId === props.doctor.id
+        );
+
+        // Check if the current user has a booking at this time with any other doctor
+        const userBookingWithOtherDoctor = props.bookedSlots.find(
+          (b) =>
+            b.userId === currentUserId &&
+            b.date === slotDateStr &&
+            b.day === dayName &&
+            b.time === time &&
+            b.doctorId !== props.doctor.id
         );
 
         // Determine the slot's status
@@ -119,28 +130,25 @@ function generateCalendarEvents(start, end) {
         } else if (isTooClose) {
           status = "too-close";
           label = "Too Close";
-        } else if (userBookingAtThisTime) {
-          // User has a booking at this time
-          if (userBookingAtThisTime.doctorId === props.doctor.id) {
-            // This is the user's booking with this doctor
-            status = "booked-by-user";
-            label = "Your Booking";
-            tooltip = "Click to cancel";
-          } else {
-            // This is a slot that conflicts with user's booking with another doctor
-            status = "booked-by-other";
-            label = "Time Slot Booked";
-            const otherDoctor = store.getters.getDoctorById(
-              userBookingAtThisTime.doctorId
-            );
-            tooltip = `You have an appointment with Dr. ${otherDoctor.name} at this time. 
-                       To book this slot, please cancel your appointment with Dr. ${otherDoctor.name} first.`;
-          }
+        } else if (userBookingWithThisDoctor) {
+          // This is the user's booking with this doctor
+          status = "booked-by-user";
+          label = "Your Booking";
+          tooltip = "Click to cancel";
         } else if (anyBooking) {
           // This slot is booked by another user with this doctor
           status = "booked";
           label = "Booked";
           tooltip = "This slot is booked by another patient";
+        } else if (userBookingWithOtherDoctor) {
+          // This slot conflicts with the user's booking with another doctor
+          status = "booked-by-other";
+          label = "Time Slot Booked";
+          const otherDoctor = store.getters.getDoctorById(
+            userBookingWithOtherDoctor.doctorId
+          );
+          tooltip = `You have an appointment with Dr. ${otherDoctor.name} at this time. 
+                     To book this slot, please cancel your appointment with Dr. ${otherDoctor.name} first.`;
         }
 
         events.push({
@@ -152,7 +160,7 @@ function generateCalendarEvents(start, end) {
             time: time,
             status,
             slotDate,
-            bookingId: userBookingAtThisTime?.id || anyBooking?.id,
+            bookingId: userBookingWithThisDoctor?.id || anyBooking?.id,
             tooltip,
           },
           classNames: [status + "-slot"],
@@ -172,7 +180,6 @@ function handleEventClick(info) {
   } else if (status === "booked-by-user" && bookingId) {
     emit("bookingSelected", { bookingId, day, time, slotDate });
   }
-  // Don't emit any events for other statuses (booked, booked-by-other, past, too-close)
 }
 
 const calendarOptions = computed(() => {
@@ -231,7 +238,6 @@ const calendarOptions = computed(() => {
   };
 });
 
-// Add a method to expose calendar API
 function getApi() {
   return calendar.value?.getApi();
 }
@@ -487,4 +493,4 @@ watch(
   margin-bottom: -6px;
   z-index: 10000;
 }
-</style> 
+</style>
