@@ -2,16 +2,16 @@
   <div id="app">
     <header>
       <div class="header-content">
-        <div class="header-left">
+        <div class="header-left"></div>
+        <div class="header-center">
+          <img src="@/assets/logo.png" alt="Health Slot Logo" class="logo" />
+        </div>
+        <div class="header-right">
           <button v-if="user.name" @click="handleLogout" class="logout-btn">
             <i class="fas fa-sign-out-alt"></i>
             <span>Logout</span>
           </button>
         </div>
-        <div class="header-center">
-          <img src="@/assets/logo.png" alt="Health Slot Logo" class="logo" />
-        </div>
-        <div class="header-right"></div>
       </div>
     </header>
     <main>
@@ -69,6 +69,10 @@ header {
 
 .header-left {
   justify-content: flex-start;
+}
+
+.header-right {
+  justify-content: flex-end;
 }
 
 .header-center {

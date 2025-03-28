@@ -41,19 +41,28 @@ onMounted(async () => {
   margin-bottom: 2rem;
 }
 
-.header h1 {
+.header h2 {
   color: #1a365d;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
-.header i {
-  color: #00a3e0;
-  margin-right: 0.5rem;
+.header h1 {
+  color: #1a365d;
+  margin-bottom: 0.25rem;
 }
 
 .header p {
-  color: #4a5568;
-  font-size: 1.1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+}
+
+.header i {
+  color: #6b7280;
+  font-size: 0.875rem;
 }
 
 .doctor-grid {

@@ -9,7 +9,7 @@
           v-model="name"
           id="name"
           type="text"
-          placeholder="Enter your name"
+          placeholder="John Doe"
           required
         />
       </div>
@@ -19,7 +19,7 @@
           v-model="email"
           id="email"
           type="email"
-          placeholder="Enter your email"
+          placeholder="johndoe@gmail.com"
           required
         />
       </div>
