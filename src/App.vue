@@ -2,7 +2,16 @@
   <div id="app">
     <header>
       <div class="header-content">
-        <img src="@/assets/logo.png" alt="Health Slot Logo" class="logo" />
+        <div class="header-left">
+          <button v-if="user.name" @click="handleLogout" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+        <div class="header-center">
+          <img src="@/assets/logo.png" alt="Health Slot Logo" class="logo" />
+        </div>
+        <div class="header-right"></div>
       </div>
     </header>
     <main>
@@ -12,8 +21,19 @@
 </template>
 
 <script setup>
-// No script logic needed since this is a layout component
-// Using <script setup> for consistency with other components
+import { computed } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+
+const store = useStore();
+const router = useRouter();
+
+const user = computed(() => store.getters.user);
+
+const handleLogout = () => {
+  store.dispatch("logout");
+  router.push("/");
+};
 </script>
 
 <style scoped>
@@ -29,15 +49,32 @@
 header {
   background: white;
   padding: 0.5rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
   max-width: 1200px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-left,
+.header-right {
   display: flex;
   align-items: center;
+}
+
+.header-left {
+  justify-content: flex-start;
+}
+
+.header-center {
+  display: flex;
   justify-content: center;
-  gap: 1rem;
+  align-items: center;
 }
 
 .logo {
@@ -46,14 +83,50 @@ header {
   object-fit: contain;
 }
 
-h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #00a3e0;
+.logout-btn {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.logout-btn i {
+  font-size: 0.875rem;
 }
 
 main {
   padding: 1rem;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  header {
+    padding: 0.5rem 1rem;
+  }
+
+  .logo {
+    height: 40px;
+  }
+
+  .logout-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .logout-btn span {
+    display: none;
+  }
 }
 </style>

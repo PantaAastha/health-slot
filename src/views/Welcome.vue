@@ -47,8 +47,14 @@ async function submitForm() {
 
   try {
     isSubmitting.value = true;
+    // Create a unique user ID based on email and name
+    const userId = `${email.value.toLowerCase()}-${name.value
+      .toLowerCase()
+      .replace(/\s+/g, "-")}`;
+
     // Save user info to store using the correct action name
     await store.dispatch("saveUser", {
+      id: userId,
       name: name.value,
       email: email.value,
     });

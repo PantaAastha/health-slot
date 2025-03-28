@@ -25,6 +25,7 @@
           :initial-view="currentView"
           :options="calendarOptions"
           @slot-selected="handleSlotSelected"
+          @booking-selected="handleBookingSelected"
         />
       </div>
       <p v-else class="error">Doctor not found</p>
@@ -38,6 +39,17 @@
       :time="selectedTime"
       @close="showModal = false"
       @confirm="handleBookingConfirm"
+    />
+
+    <BookedSlotModal
+      v-if="doctor && selectedBooking"
+      :show="showBookedModal"
+      :doctor="doctor"
+      :day="selectedDay"
+      :time="selectedTime"
+      :booking-id="selectedBooking.id"
+      @close="showBookedModal = false"
+      @cancelled="handleBookingCancelled"
     />
 
     <div class="toast-container">
@@ -62,6 +74,7 @@ import { useStore } from "vuex";
 import DoctorHeader from "@/components/DoctorHeader.vue";
 import DoctorCalendar from "@/components/DoctorCalendar.vue";
 import BookingModal from "@/components/BookingModal.vue";
+import BookedSlotModal from "@/components/BookedSlotModal.vue";
 
 const store = useStore();
 const route = useRoute();
@@ -71,9 +84,11 @@ const calendar = ref(null);
 const doctor = ref(null);
 const loading = ref(true);
 const showModal = ref(false);
+const showBookedModal = ref(false);
 const selectedDay = ref("");
 const selectedTime = ref("");
 const selectedSlotDate = ref(null);
+const selectedBooking = ref(null);
 const currentView = ref(
   window.innerWidth <= 768 ? "timeGridDay" : "timeGridWeek"
 );
@@ -124,6 +139,18 @@ function handleSlotSelected({ day, time, slotDate }) {
   showModal.value = true;
 }
 
+function handleBookingSelected({ bookingId, day, time, slotDate }) {
+  if (!doctor.value) return;
+
+  selectedDay.value = day;
+  selectedTime.value = time;
+  selectedSlotDate.value = slotDate;
+  selectedBooking.value = store.getters.bookedSlots.find(
+    (b) => b.id === bookingId
+  );
+  showBookedModal.value = true;
+}
+
 async function handleBookingConfirm({ notify }) {
   if (!doctor.value || !selectedSlotDate.value) return;
 
@@ -146,8 +173,15 @@ async function handleBookingConfirm({ notify }) {
       }`
     );
   } catch (error) {
-    showToast("error", "Failed to book appointment. Please try again.");
+    showToast(
+      "error",
+      error.message || "Failed to book appointment. Please try again."
+    );
   }
+}
+
+function handleBookingCancelled() {
+  showToast("success", "Appointment cancelled successfully");
 }
 
 function handleViewChange(view) {

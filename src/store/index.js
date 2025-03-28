@@ -15,6 +15,10 @@ export default createStore({
       state.bookings.push(booking);
       localStorage.setItem("bookings", JSON.stringify(state.bookings));
     },
+    removeBooking(state, bookingId) {
+      state.bookings = state.bookings.filter((b) => b.id !== bookingId);
+      localStorage.setItem("bookings", JSON.stringify(state.bookings));
+    },
     setBookings(state, bookings) {
       state.bookings = bookings;
       localStorage.setItem("bookings", JSON.stringify(state.bookings));
@@ -29,19 +33,45 @@ export default createStore({
       const doctors = await fetchDoctors();
       commit("setDoctors", doctors);
     },
-    bookSlot({ commit }, { doctorId, date, day, time, notify }) {
+    bookSlot({ commit, state }, { doctorId, date, day, time, notify }) {
+      // Check if user already has a booking at this time
+      const existingBooking = state.bookings.find(
+        (b) => b.userId === state.user.id && b.date === date && b.time === time
+      );
+
+      if (existingBooking) {
+        throw new Error("You already have an appointment at this time");
+      }
+
       const booking = {
+        id: Date.now(), // Add unique ID for each booking
+        userId: state.user.id, // Add user ID
         doctorId,
-        date, // Store the specific date (e.g., "2025-03-31")
-        day, // Store the day name (e.g., "Monday")
-        time, // Store the time (e.g., "9:00 AM")
+        date,
+        day,
+        time,
         notify,
         bookedAt: new Date().toISOString(),
       };
       commit("addBooking", booking);
     },
+    cancelBooking({ commit, state }, bookingId) {
+      const booking = state.bookings.find((b) => b.id === bookingId);
+      if (!booking) {
+        throw new Error("Booking not found");
+      }
+      if (booking.userId !== state.user.id) {
+        throw new Error("You can only cancel your own bookings");
+      }
+      commit("removeBooking", bookingId);
+    },
     saveUser({ commit }, user) {
       commit("setUser", user);
+    },
+    logout({ commit }) {
+      // Only clear user data, keep the bookings
+      commit("setUser", {});
+      localStorage.removeItem("user");
     },
   },
   getters: {

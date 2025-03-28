@@ -17,6 +17,7 @@ import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import store from "../store";
 
 const props = defineProps({
   doctor: {
@@ -37,7 +38,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["slotSelected"]);
+const emit = defineEmits(["slotSelected", "bookingSelected"]);
 
 const calendar = ref(null);
 
@@ -53,6 +54,7 @@ function generateCalendarEvents(start, end) {
 
   const events = [];
   const currentDate = new Date();
+  const currentUserId = store.getters.user.id;
 
   const availableDays = props.doctor.availability.reduce((acc, day) => {
     acc[day.day] = day.hours;
@@ -84,34 +86,75 @@ function generateCalendarEvents(start, end) {
         let isTooClose = false;
         if (!isPast) {
           const timeDiff = (slotDate - currentDate) / (1000 * 60); // Difference in minutes
-          isTooClose = timeDiff < 15;
+          isTooClose = timeDiff < 1;
         }
 
-        // Check if the slot is booked
+        // Check if this slot is booked by anyone with the current doctor
         const slotDateStr = formatDate(slotDate);
-        const isBooked = props.bookedSlots.some(
-          (b) => b.date === slotDateStr && b.day === dayName && b.time === time
+        const anyBooking = props.bookedSlots.find(
+          (b) =>
+            b.date === slotDateStr &&
+            b.day === dayName &&
+            b.time === time &&
+            b.doctorId === props.doctor.id && // Only consider bookings with this doctor
+            b.userId !== currentUserId // Only consider bookings by other users
+        );
+
+        // Check if user has a booking at this time with any doctor
+        const userBookingAtThisTime = props.bookedSlots.find(
+          (b) =>
+            b.userId === currentUserId &&
+            b.date === slotDateStr &&
+            b.day === dayName &&
+            b.time === time
         );
 
         // Determine the slot's status
         let status = "available";
         let label = "Available";
+        let tooltip = "";
         if (isPast) {
           status = "past";
           label = "Past";
         } else if (isTooClose) {
           status = "too-close";
           label = "Too Close";
-        } else if (isBooked) {
+        } else if (userBookingAtThisTime) {
+          // User has a booking at this time
+          if (userBookingAtThisTime.doctorId === props.doctor.id) {
+            // This is the user's booking with this doctor
+            status = "booked-by-user";
+            label = "Your Booking";
+            tooltip = "Click to cancel";
+          } else {
+            // This is a slot that conflicts with user's booking with another doctor
+            status = "booked-by-other";
+            label = "Time Slot Booked";
+            const otherDoctor = store.getters.getDoctorById(
+              userBookingAtThisTime.doctorId
+            );
+            tooltip = `You have an appointment with Dr. ${otherDoctor.name} at this time. 
+                       To book this slot, please cancel your appointment with Dr. ${otherDoctor.name} first.`;
+          }
+        } else if (anyBooking) {
+          // This slot is booked by another user with this doctor
           status = "booked";
           label = "Booked";
+          tooltip = "This slot is booked by another patient";
         }
 
         events.push({
           title: label,
           start: slotDate,
           end: new Date(slotDate.getTime() + 30 * 60 * 1000),
-          extendedProps: { day: dayName, time: time, status, slotDate },
+          extendedProps: {
+            day: dayName,
+            time: time,
+            status,
+            slotDate,
+            bookingId: userBookingAtThisTime?.id || anyBooking?.id,
+            tooltip,
+          },
           classNames: [status + "-slot"],
         });
       });
@@ -123,10 +166,13 @@ function generateCalendarEvents(start, end) {
 }
 
 function handleEventClick(info) {
-  const { day, time, status, slotDate } = info.event.extendedProps;
+  const { day, time, status, slotDate, bookingId } = info.event.extendedProps;
   if (status === "available") {
     emit("slotSelected", { day, time, slotDate });
+  } else if (status === "booked-by-user" && bookingId) {
+    emit("bookingSelected", { bookingId, day, time, slotDate });
   }
+  // Don't emit any events for other statuses (booked, booked-by-other, past, too-close)
 }
 
 const calendarOptions = computed(() => {
@@ -166,6 +212,11 @@ const calendarOptions = computed(() => {
       end: oneMonthLaterStr,
     },
     nowIndicator: true,
+    eventDidMount: (info) => {
+      if (info.event.extendedProps.tooltip) {
+        info.el.setAttribute("data-tooltip", info.event.extendedProps.tooltip);
+      }
+    },
     eventContent: (arg) => {
       return {
         html: `
@@ -243,6 +294,7 @@ watch(
 }
 
 :deep(.fc-event) {
+  position: relative;
   border: none !important;
   background: transparent !important;
   margin: 0 !important;
@@ -368,5 +420,71 @@ watch(
 
 :deep(.fc-scrollgrid-section-header td) {
   border-right: none !important;
+}
+
+:deep(.booked-by-user-slot .fc-event-main) {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  cursor: pointer;
+}
+
+:deep(.booked-by-user-slot .slot-status) {
+  color: #dc2626;
+}
+
+:deep(.booked-by-user-slot:hover .fc-event-main) {
+  background: #fee2e2;
+  transform: translateY(-1px);
+  transition: all 0.2s;
+}
+
+:deep(.booked-by-other-slot .fc-event-main) {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  cursor: not-allowed;
+}
+
+:deep(.booked-by-other-slot .slot-status) {
+  color: #6b7280;
+}
+
+:deep(.booked-by-other-slot:hover .fc-event-main) {
+  transform: none;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+:deep(.fc-event[data-tooltip]:hover::before) {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  background: white;
+  color: #1f2937;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  text-align: center;
+  white-space: normal;
+  max-width: 300px;
+  min-width: 200px;
+  word-wrap: break-word;
+  z-index: 10000;
+  margin-bottom: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e7eb;
+}
+
+:deep(.fc-event[data-tooltip]:hover::after) {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: white;
+  margin-bottom: -6px;
+  z-index: 10000;
 }
 </style> 
