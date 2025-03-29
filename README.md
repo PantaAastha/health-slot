@@ -1,10 +1,12 @@
-# Health Slot
+## Health Slot
 
 A Vue.js-based frontend system for managing medical appointments. Provides core functionality for patients to book, view, and cancel appointments with healthcare providers.
 
-## Features
+**🌐 Live Application**: [Access the deployed app here](https://PantaAastha.github.io/health-slot/)
 
-### User Flow
+### Features
+
+#### User Flow
 
 - Welcome Screen: Collect patient name and email
 - Doctor Selection: List of available medical professionals
@@ -14,7 +16,7 @@ A Vue.js-based frontend system for managing medical appointments. Provides core 
   - Interactive booking confirmation modal
   - Allows cancellation of the booked slots
 
-### Slot States
+#### Slot States
 
 - Available: Open slot that can be booked
 - Your Booking: Logged-in user's confirmed appointment
@@ -23,7 +25,7 @@ A Vue.js-based frontend system for managing medical appointments. Provides core 
 - Too Late to Book: 15-minute booking cutoff before appointment time
 - Past: Time slots that have already occurred
 
-### State Management
+#### State Management
 
 The application uses Vuex for state management with localStorage integration for data persistence. This allows:
 
@@ -33,20 +35,24 @@ The application uses Vuex for state management with localStorage integration for
 
 **Responsive Design**: Mobile-optimized interface
 
-## Limitations
+📝 **Note on Booking Availability**:
+Appointments can currently be scheduled up to 30 days in advance. The calendar will only display available slots within this 1-month window from the current date.
+
+### Limitations
 
 - No authentication
 - Basic UI
 - **Timezone Handling**: The app displays time slots in the doctor's timezone (e.g., Australia/Sydney) without adjusting for the user's local timezone.
+- **Browser Support**: Currently verified to work optimally on Google Chrome. Cross-browser compatibility with Firefox, Safari, and Edge has not been thoroughly tested.
 
-## Getting Started
+### Getting Started
 
-### Prerequisites
+#### Prerequisites
 
 - Node.js (version 18 recommended)
 - Yarn package manager
 
-### Installation
+#### Installation
 
 1. Clone the repository
 
@@ -67,7 +73,7 @@ The application uses Vuex for state management with localStorage integration for
    yarn install --ignore-engines
    ```
 
-### Running the Application Locally
+#### Running the Application Locally
 
 Start the development server:
 
@@ -77,7 +83,7 @@ yarn serve
 
 The application will be available at `http://localhost:8080` (or another port if 8080 is busy).
 
-### Running Tests
+#### Running Tests
 
 Execute the test suite:
 
@@ -98,7 +104,7 @@ The unit tests cover core functional logic including:
 - Slot status management (Available, Your Booking, Booked, Schedule Conflict, Too Late to Book, Past )
 - Data transformation
 
-## Project Structure
+### Project Structure
 
 ```
 src/
