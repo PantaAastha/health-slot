@@ -1450,6 +1450,11 @@
     anymatch "^3.0.0"
     source-map "^0.6.0"
 
+"@vitejs/plugin-vue@^5.2.3":
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/@vitejs/plugin-vue/-/plugin-vue-5.2.3.tgz#71a8fc82d4d2e425af304c35bf389506f674d89b"
+  integrity sha512-IYSLEQj4LgZZuoVpdSUCw3dIynTWQgPlaRP6iAvMle4My0HdYwr5g5wQAfwOeHQBmYwEkqF70nRpSilr6PoUDg==
+
 "@vitest/expect@3.0.9":
   version "3.0.9"
   resolved "https://registry.yarnpkg.com/@vitest/expect/-/expect-3.0.9.tgz#b0cb9cd798a131423097cc5a777b699675405fcf"
