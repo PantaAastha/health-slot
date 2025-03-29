@@ -44,10 +44,6 @@
           <i class="fas fa-chevron-right"></i>
         </button>
       </div>
-      <button class="book-btn" @click="$emit('book')">
-        <i class="fas fa-plus"></i>
-        Book Now
-      </button>
     </div>
   </header>
 </template>
@@ -257,32 +253,9 @@ const formattedDateRange = computed(() => {
 }
 
 .toggle-btn.active {
-  background: white;
-  color: #111827;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.book-btn {
   background: #00a3e0;
   color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  transition: all 0.2s;
-}
-
-.book-btn:hover {
-  background: #0091c7;
-}
-
-.book-btn i {
-  font-size: 0.75rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Mobile styles */
@@ -319,10 +292,10 @@ const formattedDateRange = computed(() => {
   .view-controls {
     margin-left: auto;
   }
-
+  /* 
   .book-btn {
     display: none;
-  }
+  } */
 
   .view-toggle {
     display: none;
@@ -341,18 +314,6 @@ const formattedDateRange = computed(() => {
 
   .doctor-info .details h1 {
     font-size: 1rem;
-  }
-
-  .book-btn {
-    padding: 0.5rem;
-  }
-
-  .book-btn i {
-    margin-right: 0;
-  }
-
-  .book-btn span {
-    display: none;
   }
 }
 
