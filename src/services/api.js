@@ -29,6 +29,14 @@ export function generateTimeSlots(startTime, endTime) {
 
 // Parse time string (e.g., " 9:00AM") into a Date object for comparison
 function parseTime(timeStr) {
+  if (!timeStr || typeof timeStr !== "string") {
+    throw new Error(`Invalid time string: ${timeStr}`);
+  }
+
+  const match = timeStr.trim().match(/(\d+):(\d+)(AM|PM)/);
+  if (!match) {
+    throw new Error(`Invalid time format: ${timeStr}`);
+  }
   const [hours, minutes] = timeStr
     .trim()
     .match(/(\d+):(\d+)(AM|PM)/)
@@ -81,9 +89,11 @@ export function transformDoctors(rawData) {
     }
 
     // Add the time slots for this day
-    acc[name].availability[day_of_week].push(
-      ...generateTimeSlots(available_at, available_until)
-    );
+    if (available_at && available_until) {
+      acc[name].availability[day_of_week].push(
+        ...generateTimeSlots(available_at, available_until)
+      );
+    }
     return acc;
   }, {});
 
